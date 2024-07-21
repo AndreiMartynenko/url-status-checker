@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -11,7 +13,7 @@ func CheckURL(url string, wg *sync.WaitGroup, results chan<- string) {
 	defer wg.Done()
 
 	client := http.Client{
-		Timeout: 5, *time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	resp, err := client.Get(url)
@@ -25,5 +27,58 @@ func CheckURL(url string, wg *sync.WaitGroup, results chan<- string) {
 		results <- fmt.Sprintf("OK: %s", url)
 	} else {
 		results <- fmt.Sprintf("FAIL: %s is Status code: %d", url, resp.StatusCode)
+	}
+}
+
+func ReadURLsFromFile(filename string) ([]string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	urlMap := make(map[string]bool)
+	var urls []string
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		url := scanner.Text()
+		if !urlMap[url] {
+			urls = append(urls, url)
+			urlMap[url] = true
+		} else {
+			fmt.Printf("Duplicate URL found: %s\n", url)
+		}
+	}
+	return urls, scanner.Err()
+}
+
+func main() {
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: url-status-checker <file>")
+		os.Exit(1)
+	}
+
+	filename := os.Args[1]
+	urls, err := ReadURLsFromFile(filename)
+	if err != nil {
+		fmt.Printf("Error reading file %s\n", err)
+		os.Exit(1)
+	}
+	var wg sync.WaitGroup
+	results := make(chan string, len(urls))
+
+	for _, url := range urls {
+		wg.Add(1)
+		go CheckURL(url, &wg, results)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for result := range results {
+		fmt.Println(result)
 	}
 }
