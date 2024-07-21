@@ -13,7 +13,7 @@ func CheckURL(url string, wg *sync.WaitGroup, results chan<- string) {
 	defer wg.Done()
 
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second,
 	}
 
 	resp, err := client.Get(url)
@@ -43,11 +43,14 @@ func ReadURLsFromFile(filename string) ([]string, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		url := scanner.Text()
+		if url == "" {
+			continue // Skip empty lines
+		}
 		if !urlMap[url] {
 			urls = append(urls, url)
 			urlMap[url] = true
 		} else {
-			fmt.Printf("Duplicate URL found: %s\n", url)
+			fmt.Printf("Duplicate URL found and deleted: %s\n", url)
 		}
 	}
 	return urls, scanner.Err()
@@ -78,7 +81,19 @@ func main() {
 		close(results)
 	}()
 
+	logFile, err := os.Create("log.txt")
+	if err != nil {
+		fmt.Printf("Error creating log file %s\n", err)
+		os.Exit(1)
+	}
+	defer logFile.Close()
+
 	for result := range results {
 		fmt.Println(result)
+		_, err := logFile.WriteString(result + "\n")
+		if err != nil {
+			fmt.Printf("Error writing to log file %s\n", err)
+			os.Exit(1)
+		}
 	}
 }
