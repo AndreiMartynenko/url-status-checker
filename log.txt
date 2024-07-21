@@ -1,0 +1,30 @@
+OK: https://www.hbo.com
+OK: https://www.fox.com
+ERROR: https://www.reddit.com -Get "https://www.reddit.com": tls: failed to verify certificate: x509: “*.reddit.com” certificate is not trusted
+OK: https://www.instagram.com
+OK: https://www.cnn.com
+ERROR: https://www.netflix.com -Get "https://www.netflix.com": stream error: stream ID 1; CANCEL; received from peer
+OK: https://www.google.com
+OK: https://www.bbc.com
+OK: https://www.facebook.com
+OK: https://www.cbs.com
+OK: https://www.youtube.com
+OK: https://www.amazon.com
+OK: https://www.tumblr.com
+OK: https://www.skype.com
+OK: https://www.flickr.com
+OK: https://www.snapchat.com
+OK: https://www.disneyplus.com
+OK: https://www.apple.com
+OK: https://www.pinterest.com
+OK: https://www.whatsapp.com
+OK: https://www.linkedin.com
+OK: https://www.nbc.com
+OK: https://www.vimeo.com
+OK: https://www.spotify.com
+OK: https://www.slack.com
+OK: https://www.twitter.com
+OK: https://www.hulu.com
+OK: https://www.abc.com
+OK: https://www.amazonprime.com
+OK: https://www.microsoft.com
